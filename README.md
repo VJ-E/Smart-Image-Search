@@ -1,4 +1,4 @@
-# Next.js E-commerce Template
+# E-Commerce Smart Image Search
 
 A modern, fully-featured e-commerce template built with Next.js, featuring Google Authentication, MongoDB for data storage, and Cloudinary for product images management.
 
