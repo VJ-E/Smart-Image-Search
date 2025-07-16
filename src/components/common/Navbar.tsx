@@ -8,6 +8,7 @@ import { UserMenu } from "./UserMenu";
 import SearchInput from "./SearchInput";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import dynamic from "next/dynamic";
+import { UploadButton } from "./UploadButton";
 
 const EditProfile = dynamic(() => import("./EditProfile"), {
   ssr: false,
@@ -200,6 +201,7 @@ export const Navbar = ({ session, totalItemsCart, totalWishlists }: Navbar) => {
       </ul>
 
       <SearchInput />
+      <UploadButton />
 
       <ul className="flex gap-2">
         <li className="flex items-center justify-center">
