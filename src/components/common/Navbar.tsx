@@ -254,6 +254,26 @@ export const Navbar = ({ session, totalItemsCart, totalWishlists }: Navbar) => {
             </span>
           </Link>
         </li>
+        <li className="flex items-center justify-center">
+          <Link
+            href="/customize"
+            aria-label="Customize your own product"
+            className="text-sm py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] flex items-center gap-1"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ color: 'currentColor' }}
+            >
+              <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>Customize Your Own</span>
+          </Link>
+        </li>
       </ul>
     </header>
   );
