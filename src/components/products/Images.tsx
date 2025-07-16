@@ -11,11 +11,13 @@ const cloudinaryLoader: ImageLoader = ({ src, width, quality }) => {
     "w_" + width,
     "q_" + (quality || "auto"),
   ];
+  // If src is already a full URL, return as is
+  if (/^https?:\/\//.test(src)) {
+    return src;
+  }
   const normalizeSrc = (src: string) => (src[0] === "/" ? src.slice(1) : src);
-
-  return `https://res.cloudinary.com/${
-    process.env.CLOUDINARY_CLOUD_NAME
-  }/image/upload/${params.join(",")}/${normalizeSrc(src)}`;
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${params.join(",")}/${normalizeSrc(src)}`;
 };
 
 export const Images = ({
