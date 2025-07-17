@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-Shirt Customizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+        }
+
+        .controls-panel {
+            width: 350px;
+            background: #f8f9fa;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #f0f2f5, #ffffff);
+            position: relative;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .title::before {
+            content: "👕";
+            font-size: 32px;
+        }
+
+        .control-group {
+            margin-bottom: 30px;
+        }
+
+        .control-group h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group input[type="color"] {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e9ecef;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .color-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .color-preset {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .color-preset:hover {
+            transform: scale(1.1);
+        }
+
+        .color-preset.active {
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .tshirt-container {
+            position: relative;
+            width: 400px;
+            height: 500px;
+        }
+
+        .tshirt {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+        }
+
+        .tshirt-base {
+            width: 100%;
+            height: 100%;
+            fill: #3498db;
+            transition: fill 0.3s ease;
+        }
+
+        .text-overlay {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Arial Black', Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .fabric-texture {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+        .export-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .slider-value {
+            display: inline-block;
+            min-width: 30px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                width: 100%;
+                border-radius: 0;
+                padding: 10px; /* Add padding */
+                justify-content: flex-start;
+            }
+            .controls-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                padding: 20px 10px; /* Reduce padding */
+                text-align: center;
+            }
+            .tshirt-container {
+                width: 90vw;
+                max-width: 300px;
+                height: 60vw;
+                max-height: 375px;
+                margin: 0 auto; /* Center horizontally */
+            }
+            .btn, .export-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .preview-panel {
+                overflow-x: auto;
+                align-items: stretch;
+            }
+        }
+        @media (max-width: 480px) {
+            .tshirt-container {
+                width: 98vw;
+                max-width: 220px;
+                height: 70vw;
+                max-height: 250px;
+            }
+            .title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls-panel">
+            <div class="title">T-Shirt Designer</div>
+            
+            <div class="control-group">
+                <h3>Shirt Color</h3>
+                <div class="input-group">
+                    <label>Custom Color:</label>
+                    <input type="color" id="shirtColor" value="#3498db">
+                </div>
+                <div class="color-presets">
+                    <div class="color-preset" style="background: #3498db;" data-color="#3498db"></div>
+                    <div class="color-preset" style="background: #ffffff; border-color: #ddd;" data-color="#ffffff"></div>
+                    <div class="color-preset" style="background: #000000;" data-color="#000000"></div>
+                    <div class="color-preset" style="background: #e74c3c;" data-color="#e74c3c"></div>
+                    <div class="color-preset" style="background: #2ecc71;" data-color="#2ecc71"></div>
+                    <div class="color-preset" style="background: #f39c12;" data-color="#f39c12"></div>
+                    <div class="color-preset" style="background: #9b59b6;" data-color="#9b59b6"></div>
+                    <div class="color-preset" style="background: #34495e;" data-color="#34495e"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Custom Text</h3>
+                <div class="input-group">
+                    <label>Enter Text:</label>
+                    <input type="text" id="customText" placeholder="Your text here..." maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label>Text Color:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+                <div class="input-group">
+                    <label>Text Size: <span class="slider-value" id="sizeValue">24</span>px</label>
+                    <input type="range" id="textSize" min="12" max="48" value="24">
+                </div>
+                <button class="btn" onclick="clearText()">Clear Text</button>
+            </div>
+
+            <div class="control-group">
+                <h3>Text Position</h3>
+                <div class="input-group">
+                    <label>Horizontal: <span class="slider-value" id="horizontalValue">50</span>%</label>
+                    <input type="range" id="horizontalPosition" min="0" max="100" value="50">
+                </div>
+                <div class="input-group">
+                    <label>Vertical: <span class="slider-value" id="verticalValue">40</span>%</label>
+                    <input type="range" id="verticalPosition" min="20" max="70" value="40">
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="tshirt-container">
+                <svg class="tshirt" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Fabric texture overlay -->
+                        <pattern id="fabricTexture" x="0" y="0" width="15" height="15" patternUnits="userSpaceOnUse">
+                            <rect width="15" height="15" fill="none"/>
+                            <circle cx="7.5" cy="7.5" r="0.8" fill="rgba(0,0,0,0.08)"/>
+                            <circle cx="3" cy="3" r="0.4" fill="rgba(0,0,0,0.04)"/>
+                            <circle cx="12" cy="12" r="0.4" fill="rgba(0,0,0,0.04)"/>
+                            <circle cx="3" cy="12" r="0.3" fill="rgba(0,0,0,0.03)"/>
+                            <circle cx="12" cy="3" r="0.3" fill="rgba(0,0,0,0.03)"/>
+                        </pattern>
+                        
+                        <!-- Gradient for depth -->
+                        <linearGradient id="shirtGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+                        </linearGradient>
+                        
+                        <!-- Shadow filter -->
+                        <filter id="innerShadow">
+                            <feOffset dx="0" dy="2"/>
+                            <feGaussianBlur stdDeviation="3"/>
+                            <feComposite operator="over"/>
+                        </filter>
+                    </defs>
+                    
+                    <!-- T-shirt base shape - More realistic proportions -->
+                    <path class="tshirt-base" d="M70 110 
+                             C70 110 75 85 80 80 
+                             C85 75 95 70 105 70 
+                             L120 70 
+                             C125 65 130 50 140 45 
+                             C150 40 160 35 170 35 
+                             L230 35 
+                             C240 35 250 40 260 45 
+                             C270 50 275 65 280 70 
+                             L295 70 
+                             C305 70 315 75 320 80 
+                             C325 85 330 110 330 110 
+                             L365 125 
+                             C370 127 375 130 378 135 
+                             C380 140 380 145 380 150 
+                             L380 175 
+                             C380 180 378 185 375 187 
+                             C372 189 365 190 360 190 
+                             L330 190 
+                             L330 440 
+                             C330 460 325 470 315 475 
+                             C305 480 295 480 285 480 
+                             L115 480 
+                             C105 480 95 480 85 475 
+                             C75 470 70 460 70 440 
+                             L70 190 
+                             L40 190 
+                             C35 190 28 189 25 187 
+                             C22 185 20 180 20 175 
+                             L20 150 
+                             C20 145 20 140 22 135 
+                             C25 130 30 127 35 125 
+                             L70 110 Z"/>
+                    
+                    <!-- Neck opening -->
+                    <path fill="rgba(0,0,0,0.1)" d="M140 45 
+                             C150 40 160 35 170 35 
+                             L230 35 
+                             C240 35 250 40 260 45 
+                             C255 55 245 65 235 70 
+                             L165 70 
+                             C155 65 145 55 140 45 Z"/>
+                    
+                    <!-- Sleeve shadows for depth -->
+                    <path fill="rgba(0,0,0,0.1)" d="M70 110 
+                             L35 125 
+                             C30 127 25 130 22 135 
+                             C25 130 30 127 35 125 
+                             L70 110 
+                             L70 140 
+                             L40 140 
+                             L40 190 
+                             L70 190 
+                             L70 140 Z"/>
+                    
+                    <path fill="rgba(0,0,0,0.1)" d="M330 110 
+                             L365 125 
+                             C370 127 375 130 378 135 
+                             C375 130 370 127 365 125 
+                             L330 110 
+                             L330 140 
+                             L360 140 
+                             L360 190 
+                             L330 190 
+                             L330 140 Z"/>
+                    
+                    <!-- Fabric texture overlay -->
+                    <rect class="fabric-texture" width="100%" height="100%" fill="url(#fabricTexture)"/>
+                    
+                    <!-- Gradient overlay for realism -->
+                    <path fill="url(#shirtGradient)" d="M70 110 
+                             C70 110 75 85 80 80 
+                             C85 75 95 70 105 70 
+                             L120 70 
+                             C125 65 130 50 140 45 
+                             C150 40 160 35 170 35 
+                             L230 35 
+                             C240 35 250 40 260 45 
+                             C270 50 275 65 280 70 
+                             L295 70 
+                             C305 70 315 75 320 80 
+                             C325 85 330 110 330 110 
+                             L365 125 
+                             C370 127 375 130 378 135 
+                             C380 140 380 145 380 150 
+                             L380 175 
+                             C380 180 378 185 375 187 
+                             C372 189 365 190 360 190 
+                             L330 190 
+                             L330 440 
+                             C330 460 325 470 315 475 
+                             C305 480 295 480 285 480 
+                             L115 480 
+                             C105 480 95 480 85 475 
+                             C75 470 70 460 70 440 
+                             L70 190 
+                             L40 190 
+                             C35 190 28 189 25 187 
+                             C22 185 20 180 20 175 
+                             L20 150 
+                             C20 145 20 140 22 135 
+                             C25 130 30 127 35 125 
+                             L70 110 Z"/>
+                </svg>
+                
+                <div class="text-overlay" id="textOverlay"></div>
+            </div>
+
+            <div class="export-controls">
+                <button class="export-btn" onclick="exportDesign()">💾 Save Design</button>
+                <button class="export-btn" onclick="exportImage()">📸 Export Image</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const shirtColorInput = document.getElementById('shirtColor');
+        const customTextInput = document.getElementById('customText');
+        const textColorInput = document.getElementById('textColor');
+        const textSizeInput = document.getElementById('textSize');
+        const horizontalPositionInput = document.getElementById('horizontalPosition');
+        const verticalPositionInput = document.getElementById('verticalPosition');
+        const textOverlay = document.getElementById('textOverlay');
+        const tshirtBase = document.querySelector('.tshirt-base');
+        const colorPresets = document.querySelectorAll('.color-preset');
+        const sizeValue = document.getElementById('sizeValue');
+        const horizontalValue = document.getElementById('horizontalValue');
+        const verticalValue = document.getElementById('verticalValue');
+
+        // Initialize
+        updateTshirtColor();
+        updateText();
+        updateTextPosition();
+
+        // Event listeners
+        shirtColorInput.addEventListener('input', updateTshirtColor);
+        customTextInput.addEventListener('input', updateText);
+        textColorInput.addEventListener('input', updateText);
+        textSizeInput.addEventListener('input', function() {
+            sizeValue.textContent = this.value;
+            updateText();
+        });
+        horizontalPositionInput.addEventListener('input', function() {
+            horizontalValue.textContent = this.value;
+            updateTextPosition();
+        });
+        verticalPositionInput.addEventListener('input', function() {
+            verticalValue.textContent = this.value;
+            updateTextPosition();
+        });
+
+        // Color preset functionality
+        colorPresets.forEach(preset => {
+            preset.addEventListener('click', function() {
+                const color = this.dataset.color;
+                shirtColorInput.value = color;
+                updateTshirtColor();
+                
+                // Update active state
+                colorPresets.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Functions
+        function updateTshirtColor() {
+            const color = shirtColorInput.value;
+            tshirtBase.style.fill = color;
+            
+            // Update active preset
+            colorPresets.forEach(preset => {
+                preset.classList.toggle('active', preset.dataset.color === color);
+            });
+        }
+
+        function updateText() {
+            const text = customTextInput.value;
+            const color = textColorInput.value;
+            const size = textSizeInput.value;
+            
+            textOverlay.textContent = text;
+            textOverlay.style.color = color;
+            textOverlay.style.fontSize = size + 'px';
+            
+            // Adjust text visibility based on contrast
+            const textDisplay = text.trim() === '' ? 'none' : 'block';
+            textOverlay.style.display = textDisplay;
+        }
+
+        function updateTextPosition() {
+            const horizontal = horizontalPositionInput.value;
+            const vertical = verticalPositionInput.value;
+            
+            textOverlay.style.left = horizontal + '%';
+            textOverlay.style.top = vertical + '%';
+        }
+
+        function clearText() {
+            customTextInput.value = '';
+            updateText();
+        }
+
+        function exportDesign() {
+            const design = {
+                shirtColor: shirtColorInput.value,
+                text: customTextInput.value,
+                textColor: textColorInput.value,
+                textSize: textSizeInput.value,
+                textPosition: {
+                    horizontal: horizontalPositionInput.value,
+                    vertical: verticalPositionInput.value
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            // Create download link
+            const dataStr = JSON.stringify(design, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'tshirt-design-' + Date.now() + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function exportImage() {
+            // Create a canvas to capture the t-shirt design
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 500;
+            
+            // Fill background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw t-shirt shape (simplified)
+            ctx.fillStyle = shirtColorInput.value;
+            ctx.beginPath();
+            ctx.moveTo(80, 120);
+            ctx.lineTo(80, 450);
+            ctx.quadraticCurveTo(80, 480, 100, 480);
+            ctx.lineTo(300, 480);
+            ctx.quadraticCurveTo(320, 480, 320, 450);
+            ctx.lineTo(320, 120);
+            ctx.lineTo(350, 140);
+            ctx.lineTo(350, 190);
+            ctx.lineTo(320, 190);
+            ctx.lineTo(320, 120);
+            ctx.lineTo(300, 60);
+            ctx.lineTo(270, 60);
+            ctx.quadraticCurveTo(250, 40, 230, 40);
+            ctx.lineTo(170, 40);
+            ctx.quadraticCurveTo(150, 40, 130, 60);
+            ctx.lineTo(100, 60);
+            ctx.lineTo(80, 120);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Add text if present
+            if (customTextInput.value.trim() !== '') {
+                ctx.fillStyle = textColorInput.value;
+                ctx.font = `bold ${textSizeInput.value}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const x = (horizontalPositionInput.value / 100) * canvas.width;
+                const y = (verticalPositionInput.value / 100) * canvas.height;
+                
+                ctx.fillText(customTextInput.value, x, y);
+            }
+            
+            // Download image
+            const link = document.createElement('a');
+            link.download = 'tshirt-design-' + Date.now() + '.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Initialize first color preset as active
+        colorPresets[0].classList.add('active');
+    </script>
+</body>
+</html>
