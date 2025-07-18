@@ -1,0 +1,12 @@
+torch
+numpy
+Pillow
+faiss-cpu
+matplotlib
+open-clip-torch
+fastapi
+uvicorn
+python-dotenv
+pymongo
+requests
+python-multipart

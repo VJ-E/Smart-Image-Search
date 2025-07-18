@@ -19,21 +19,23 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load model and preprocessing
 print("Loading model...")
-model, _, preprocess = create_model_and_transforms('ViT-B-32', pretrained='laion2b_s34b_b79k')
+model, _, preprocess_val = create_model_and_transforms('ViT-B-32', pretrained='laion2b_s34b_b79k')
 model.eval().to(DEVICE)
 
 # Helper: Extract image embeddings
 def get_embedding(image_path):
-    image = preprocess(Image.open(image_path).convert("RGB")).unsqueeze(0).to(DEVICE)
+    image = Image.open(image_path).convert("RGB")
+    image_tensor: torch.Tensor = preprocess_val(image)  # type: ignore
+    image_tensor = image_tensor.unsqueeze(0).to(DEVICE)
     with torch.no_grad():
-        embedding = model.encode_image(image)
+        embedding = model.encode_image(image_tensor)
         embedding /= embedding.norm(dim=-1, keepdim=True)
     return embedding.cpu().numpy()
 
 # Step 1: Index dataset images
 print("Indexing dataset images...")
 dataset_paths = [os.path.join(DATASET_FOLDER, f) for f in os.listdir(DATASET_FOLDER) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
-dataset_embeddings = np.vstack([get_embedding(p) for p in dataset_paths])
+dataset_embeddings = np.vstack([get_embedding(p) for p in dataset_paths]).astype(np.float32)
 
 # FAISS indexing
 index = faiss.IndexFlatIP(dataset_embeddings.shape[1])  # Cosine similarity (dot product on normalized vectors)
@@ -45,6 +47,7 @@ test_paths = [os.path.join(TEST_FOLDER, f) for f in os.listdir(TEST_FOLDER) if f
 
 for test_path in test_paths:
     test_embedding = get_embedding(test_path)
+    test_embedding = np.asarray(test_embedding, dtype=np.float32).reshape(1, -1)
     distances, indices = index.search(test_embedding, TOP_K)
     similar_paths = [dataset_paths[i] for i in indices[0]]
     results.append((test_path, similar_paths))
@@ -68,4 +71,6 @@ for row, (test_path, similar_paths) in enumerate(results):
         axs[row][col + 1].axis("off")
 
 plt.tight_layout()
-plt.show()
+# plt.show()  # Comment out interactive show
+plt.savefig("results/results.png")
+print("Results saved to results.png")

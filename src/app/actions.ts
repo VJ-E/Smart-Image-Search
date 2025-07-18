@@ -63,3 +63,15 @@ export const getProduct = async (_id: string) => {
     console.error("Error getting product:", error);
   }
 };
+
+export const getProductsByIds = async (ids: string[]) => {
+  try {
+    await connectDB();
+
+    const products: EnrichedProducts[] = await Product.find({ _id: { $in: ids } });
+    return products;
+  } catch (error) {
+    console.error("Error getting products by ids:", error);
+    throw new Error("Failed to fetch products by ids");
+  }
+};
